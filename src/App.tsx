@@ -32,7 +32,7 @@ const ASSET_ID = 1337; //USDC
 const asset = {
   parents: 0,
   interior: {
-    X2: [{ palletInstance: 50 }, { generalIndex: ASSET_ID }],
+    X2: [{ PalletInstance: 50 }, { GeneralIndex: ASSET_ID }],
   },
 };
 const { name, symbol, decimals } = await assetsApi.api.query.assets.metadata(
