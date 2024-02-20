@@ -1,6 +1,6 @@
-# Westend Asset Hub Polkadot.js test
+# ChargeAssetTxPayment Polkadot.js test
 
-Transacting JOE TEST TOKENS and paying transaction fees in JOE TEST TOKENS, no WND required!
+Transacting sufficient tokens paying transaction fees with sufficient tokens, no native token required!
 
 Westmint Test address - 5GEDdssMuwdEp4wJdKYfRMWDnpKMtzFzT5Wp1NAQLWmdmHKH
 Statemint Test address - 15AWnD8RmitiFbwpaxbfZWLNeSK1bHp8XaFJAf9ktbo9wZud

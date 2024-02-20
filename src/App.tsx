@@ -1,4 +1,9 @@
-import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
+import {
+  AssetTransferApi,
+  constructApiPromise,
+} from "@substrate/asset-transfer-api";
+
+import { Keyring, WsProvider } from "@polkadot/api";
 import {
   web3Accounts,
   web3Enable,
@@ -6,23 +11,31 @@ import {
 } from "@polkadot/extension-dapp";
 import { useEffect, useState } from "react";
 
+const extensions = await web3Enable("Transact USDC");
 const POLKADOT_ASSET_HUB = 0;
-// const ASSET_ID = 8; //JOE TEST TOKEN
-const ASSET_ID = 1337; //USDC
+const PARACHAIN_ID = "1000";
+const WESTMINT_RPC = "wss://westmint-rpc.polkadot.io";
+// const STATEMINT_RPC = "wss://statemint-rpc.polkadot.io";
+const allAccounts = formatAddress(
+  await web3Accounts({ extensions: extensions[0].name }),
+  2
+);
+
+const { api, specName, safeXcmVersion } = await constructApiPromise(
+  WESTMINT_RPC
+);
+const assetsApi = new AssetTransferApi(api, specName, safeXcmVersion);
+const ASSET_ID = "8"; //JOE TEST TOKEN
+// const ASSET_ID = "1337"; //USDC
 const asset = {
   parents: 0,
   interior: {
     X2: [{ PalletInstance: 50 }, { GeneralIndex: ASSET_ID }],
   },
 };
-const extensions = await web3Enable("my cool dapp");
-const allAccounts = formatAddress(
-  await web3Accounts({ extensions: extensions[0].name }),
-  POLKADOT_ASSET_HUB
+const { name, symbol, decimals } = await assetsApi.api.query.assets.metadata(
+  ASSET_ID
 );
-// const wsProvider = new WsProvider("wss://westend-asset-hub-rpc.polkadot.io");
-const wsProvider = new WsProvider("wss://polkadot-asset-hub-rpc.polkadot.io");
-const api = await ApiPromise.create({ provider: wsProvider });
 
 function formatAddress(array, encode) {
   const keyring = new Keyring();
@@ -58,7 +71,7 @@ function App() {
   };
 
   const handleTransact = async () => {
-    const transferExtrinsic = api.tx.assets.transferKeepAlive(
+    const transferExtrinsic = assetsApi.api.tx.assets.transferKeepAlive(
       ASSET_ID,
       recipientAddress,
       BigInt(amount)
@@ -87,14 +100,55 @@ function App() {
       });
   };
 
+  const handleTransactionNew = async () => {
+    const payload = await assetsApi.createTransferTransaction(
+      PARACHAIN_ID,
+      recipientAddress,
+      [ASSET_ID],
+      [amount.toString()], // Array of amounts of each token to transfer
+      {
+        format: "payload",
+        keepAlive: true,
+        paysWithFeeOrigin: ASSET_ID,
+        sendersAddr: account.address,
+      }
+    );
+    console.log(payload);
+    const injector = await web3FromSource(account.meta.source);
+    assetsApi.api.tx.utility
+      .batch(payload)
+      .signAndSend(
+        account.address,
+        {
+          signer: injector.signer,
+          // assetId: asset,
+        },
+        ({ status }) => {
+          if (status.isInBlock) {
+            console.log(
+              `Completed at block hash #${status.asInBlock.toString()}`
+            );
+          } else {
+            console.log(`Current status: ${status.type}`);
+          }
+        }
+      )
+      .catch((error: any) => {
+        console.log(":( transaction failed", error);
+      });
+  };
+
   useEffect(() => {
-    api.query.assets
+    assetsApi.api.query.assets
       .account(ASSET_ID, account.address)
-      .then(({ value }) => value ?? setBalance(value.balance.words[0]));
+      .then(({ value }) =>
+        !value.balance ? setBalance(0) : setBalance(value.balance.words[0])
+      );
   }, [account]);
 
   return (
     <div>
+      <div>Transact {String.fromCharCode.apply(null, symbol)}</div>
       <div>
         <label>From: </label>
         {allAccounts && (
@@ -123,7 +177,7 @@ function App() {
       </div>
 
       <div>
-        <label>To: </label>
+        <label>Amount: </label>
         <input
           type="number"
           value={amount}
@@ -132,7 +186,7 @@ function App() {
         />
       </div>
 
-      <button onClick={handleTransact}>Transact</button>
+      <button onClick={handleTransactionNew}>Transact</button>
     </div>
   );
 }

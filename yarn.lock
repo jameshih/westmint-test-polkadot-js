@@ -862,6 +862,19 @@
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.5.tgz#1d85d17269fe97694b9c592552dd9e5e33552157"
   integrity sha512-Brj9FiG2W1MRQSTB212YVPRrcbjkv48FoZi/u4l/zds/ieRrqsh7aUf6CLwkAq61oKXr/ZlTzlY66gLIj3TFTQ==
 
+"@substrate/asset-transfer-api-registry@^0.2.14":
+  version "0.2.14"
+  resolved "https://registry.yarnpkg.com/@substrate/asset-transfer-api-registry/-/asset-transfer-api-registry-0.2.14.tgz#e6dcd84277eb2667e6ac48caf75fc6b61648080c"
+  integrity sha512-+ikn0JiXlWeDbuCa0D1GyG7db1MLFtHQmfE7ieza3X5r3HMqkIkG1Q+7rNWZ9Fi6ESqmtGJB3DJd4JdYqT+XfA==
+
+"@substrate/asset-transfer-api@^0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@substrate/asset-transfer-api/-/asset-transfer-api-0.1.7.tgz#82922f5eaa7a46e88d767b0c129a51d89981b0d6"
+  integrity sha512-pgzkQI5M73AvDVBlEa/LlQPjc5O/ydftLJ7fy8XG7JK4EHb+rLHgVAUTgdtbUowqDw4vVBIXSwmo5V1hSY43GA==
+  dependencies:
+    "@polkadot/api" "^10.11.2"
+    "@substrate/asset-transfer-api-registry" "^0.2.14"
+
 "@substrate/connect-extension-protocol@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@substrate/connect-extension-protocol/-/connect-extension-protocol-1.0.1.tgz#fa5738039586c648013caa6a0c95c43265dbe77d"
