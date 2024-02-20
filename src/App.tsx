@@ -1,4 +1,4 @@
-import { ApiPromise, WsProvider } from "@polkadot/api";
+import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import {
   web3Accounts,
   web3Enable,
@@ -6,24 +6,40 @@ import {
 } from "@polkadot/extension-dapp";
 import { useEffect, useState } from "react";
 
-const extensions = await web3Enable("my cool dapp");
-const allAccounts = await web3Accounts({ extensions: extensions[0].name });
-const wsProvider = new WsProvider("wss://westend-asset-hub-rpc.polkadot.io");
-const api = await ApiPromise.create({ provider: wsProvider });
-const ASSET_ID = 8;
+const POLKADOT_ASSET_HUB = 0;
+// const ASSET_ID = 8; //JOE TEST TOKEN
+const ASSET_ID = 1337; //USDC
 const asset = {
   parents: 0,
   interior: {
     X2: [{ PalletInstance: 50 }, { GeneralIndex: ASSET_ID }],
   },
 };
+const extensions = await web3Enable("my cool dapp");
+const allAccounts = formatAddress(
+  await web3Accounts({ extensions: extensions[0].name }),
+  POLKADOT_ASSET_HUB
+);
+// const wsProvider = new WsProvider("wss://westend-asset-hub-rpc.polkadot.io");
+const wsProvider = new WsProvider("wss://polkadot-asset-hub-rpc.polkadot.io");
+const api = await ApiPromise.create({ provider: wsProvider });
+
+function formatAddress(array, encode) {
+  const keyring = new Keyring();
+
+  if (encode === POLKADOT_ASSET_HUB)
+    return array.map((obj) => ({
+      ...obj,
+      address: keyring.encodeAddress(obj.address, encode),
+    }));
+
+  return array;
+}
 
 function App() {
   const [account, setAccount] = useState(allAccounts[0]);
   const [balance, setBalance] = useState("null");
-  const [recipientAddress, setRecipientAddress] = useState(
-    "5GnTRaKSNiBbRygtPb7UmFRaHhEmLW9PM3LBLSLt7Eb2qzSb"
-  );
+  const [recipientAddress, setRecipientAddress] = useState("");
   const [amount, setAmount] = useState("");
 
   const handleAccountChange = (event) => {
@@ -74,7 +90,7 @@ function App() {
   useEffect(() => {
     api.query.assets
       .account(ASSET_ID, account.address)
-      .then(({ value }) => setBalance(value.balance.words[0]));
+      .then(({ value }) => value ?? setBalance(value.balance.words[0]));
   }, [account]);
 
   return (
