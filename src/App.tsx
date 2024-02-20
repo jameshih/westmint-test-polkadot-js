@@ -15,22 +15,24 @@ const extensions = await web3Enable("Transact USDC");
 const POLKADOT_ASSET_HUB = 0;
 const PARACHAIN_ID = "1000";
 const WESTMINT_RPC = "wss://westmint-rpc.polkadot.io";
-// const STATEMINT_RPC = "wss://statemint-rpc.polkadot.io";
+const STATEMINT_RPC = "wss://polkadot-asset-hub-rpc.polkadot.io";
 const allAccounts = formatAddress(
   await web3Accounts({ extensions: extensions[0].name }),
-  2
+  POLKADOT_ASSET_HUB
+  // 2
 );
 
 const { api, specName, safeXcmVersion } = await constructApiPromise(
-  WESTMINT_RPC
+  STATEMINT_RPC
+  // WESTMINT_RPC
 );
 const assetsApi = new AssetTransferApi(api, specName, safeXcmVersion);
-const ASSET_ID = "8"; //JOE TEST TOKEN
-// const ASSET_ID = "1337"; //USDC
+// const ASSET_ID = 8; //JOE TEST TOKEN
+const ASSET_ID = 1337; //USDC
 const asset = {
   parents: 0,
   interior: {
-    X2: [{ PalletInstance: 50 }, { GeneralIndex: ASSET_ID }],
+    X2: [{ palletInstance: 50 }, { generalIndex: ASSET_ID }],
   },
 };
 const { name, symbol, decimals } = await assetsApi.api.query.assets.metadata(
@@ -95,48 +97,58 @@ function App() {
           }
         }
       )
-      .catch((error: any) => {
+      .catch((error) => {
         console.log(":( transaction failed", error);
       });
   };
 
-  const handleTransactionNew = async () => {
-    const payload = await assetsApi.createTransferTransaction(
-      PARACHAIN_ID,
-      recipientAddress,
-      [ASSET_ID],
-      [amount.toString()], // Array of amounts of each token to transfer
-      {
-        format: "payload",
-        keepAlive: true,
-        paysWithFeeOrigin: ASSET_ID,
-        sendersAddr: account.address,
-      }
-    );
-    console.log(payload);
-    const injector = await web3FromSource(account.meta.source);
-    assetsApi.api.tx.utility
-      .batch(payload)
-      .signAndSend(
-        account.address,
-        {
-          signer: injector.signer,
-          // assetId: asset,
-        },
-        ({ status }) => {
-          if (status.isInBlock) {
-            console.log(
-              `Completed at block hash #${status.asInBlock.toString()}`
-            );
-          } else {
-            console.log(`Current status: ${status.type}`);
-          }
-        }
-      )
-      .catch((error: any) => {
-        console.log(":( transaction failed", error);
-      });
-  };
+  // const handleTransactionNew = async () => {
+  //   const txInfo = await assetsApi.createTransferTransaction(
+  //     PARACHAIN_ID,
+  //     recipientAddress,
+  //     [ASSET_ID],
+  //     [amount.toString()],
+  //     {
+  //       format: "payload",
+  //       keepAlive: true,
+  //       paysWithFeeDest: asset,
+  //       sendersAddr: account.address,
+  //     }
+  //   );
+  //   const injector = await web3FromSource(account.meta.source);
+
+  //   const payload = assetsApi.api.createType("ExtrinsicPayload", txInfo.tx, {
+  //     version: 4,
+  //   });
+
+  //   const extrinsic = assetsApi.api.registry.createType(
+  //     "Extrinsic",
+  //     { method: payload.method },
+  //     { version: 4 }
+  //   );
+
+  //   assetsApi.api
+  //     .tx(extrinsic)
+  //     .signAndSend(
+  //       account.address,
+  //       {
+  //         signer: injector.signer,
+  //         assetId: asset,
+  //       },
+  //       ({ status }) => {
+  //         if (status.isInBlock) {
+  //           console.log(
+  //             `Completed at block hash #${status.asInBlock.toString()}`
+  //           );
+  //         } else {
+  //           console.log(`Current status: ${status.type}`);
+  //         }
+  //       }
+  //     )
+  //     .catch((error: any) => {
+  //       console.log(":( transaction failed", error);
+  //     });
+  // };
 
   useEffect(() => {
     assetsApi.api.query.assets
@@ -186,7 +198,7 @@ function App() {
         />
       </div>
 
-      <button onClick={handleTransactionNew}>Transact</button>
+      <button onClick={handleTransact}>Transact</button>
     </div>
   );
 }
