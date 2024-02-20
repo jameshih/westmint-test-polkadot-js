@@ -85,7 +85,7 @@ function App() {
         account.address,
         {
           signer: injector.signer,
-          assetId: asset,
+          assetId: ASSET_ID,
         },
         ({ status }) => {
           if (status.isInBlock) {
