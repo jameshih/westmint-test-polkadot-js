@@ -8,3 +8,4 @@ Statemint Test address - 15AWnD8RmitiFbwpaxbfZWLNeSK1bHp8XaFJAf9ktbo9wZud
 ## Todos
 
 - [ ] There is an error when using the Polkadot.js extension, use Talisman wallet for now.
+- [ ] There is an error when using Polkadot.js and Talisman to send ChargeAssetTxPayment transactions on Polkadot Asset Hub, Failed to approve sign request.

@@ -28,7 +28,8 @@ const { api, specName, safeXcmVersion } = await constructApiPromise(
 );
 const assetsApi = new AssetTransferApi(api, specName, safeXcmVersion);
 // const ASSET_ID = 8; //JOE TEST TOKEN
-const ASSET_ID = 1337; //USDC
+// const ASSET_ID = 1337; //USDC
+const ASSET_ID = 1984; //USDT
 const asset = {
   parents: 0,
   interior: {
@@ -85,7 +86,7 @@ function App() {
         account.address,
         {
           signer: injector.signer,
-          assetId: ASSET_ID,
+          assetId: asset,
         },
         ({ status }) => {
           if (status.isInBlock) {
